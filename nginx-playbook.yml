@@ -1,0 +1,56 @@
+---
+- name: Install Nginx
+  hosts: nginx
+  become: True
+  vars:
+    nginx_port: 8008
+    epel: epel-release
+    html: /usr/share/nginx/html/index.html
+    nginx_conf_mode: '0750'
+
+  tasks:
+
+    - name: Install epel-repo
+      yum:
+        name: "{{epel}}" 
+        state: present
+      tags:
+        - epel-package
+
+
+    - name: Install nginx
+      yum:
+        name: nginx
+        state: present
+      tags:
+        - nginx-package
+      notify:
+        - restart_nginx
+
+    - name: Configure html file
+      template:
+        src: index.html.j2
+        dest: "{{ html }}"
+        owner: root
+        group: root
+        mode: "{{ nginx_conf_mode }}"      
+
+    
+    - name: Configure nginx
+      template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+        owner : root
+        group: root
+        mode: "{{ nginx_conf_mode }}"
+      notify:
+        - restart_nginx
+
+  handlers:
+
+    - name: restart_nginx
+      systemd:
+        name: nginx
+        state: restarted
+        enabled: True
+
