@@ -3,10 +3,10 @@
   hosts: nginx
   become: True
   vars:
-    nginx_port: 8008
+    nginx_port: 8080
     epel: epel-release
     html: /usr/share/nginx/html/index.html
-    nginx_conf_mode: '0644'
+    nginx_conf_mode: '0755'
 
   tasks:
 
